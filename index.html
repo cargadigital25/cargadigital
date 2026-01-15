@@ -237,7 +237,6 @@
     </div>
 
     <script>
-        // Actualización a la nueva hoja de cálculo y celda A1
         const SHEET_ID = "1LjrIYqA8YEdJa6WJ5e9heEBOq6aodi42pYSc6PiPOVM";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
         const WHATSAPP_RECEPTOR = "584247034254";
@@ -250,8 +249,6 @@
                 const res = await fetch(SHEET_URL + "&cache=" + new Date().getTime());
                 const data = await res.text();
                 const filas = data.split('\n');
-                
-                // Cambio: Ahora leemos la primera fila (índice 0) para obtener la celda A1
                 let valorLimpio = filas[0].split(',')[0].replace(/["'\r]/g, "").trim();
                 tasaHoy = parseFloat(valorLimpio);
                 
@@ -307,13 +304,18 @@
 
         function enviarWhatsApp() {
             const email = document.getElementById('email').value;
-            if(!email.includes('@')) { alert("Ingresa tu correo Zinli"); return; }
-            
-            if(confirm("¿Ya tienes la captura del comprobante lista?")) {
-                document.getElementById('progress-bar').style.width = "100%";
-                const texto = `*RECARGA CARGA DIGITAL*%0AUSD: ${document.getElementById('montoUSD').value}%0ATotal: ${totalGlobalBs.toFixed(2)} Bs%0ACorreo: ${email}`;
-                window.open(`https://wa.me/${WHATSAPP_RECEPTOR}?text=${texto}`, '_blank');
+            // Validación simple de correo
+            if(!email || !email.includes('@')) { 
+                alert("Por favor, ingresa tu correo Zinli antes de continuar."); 
+                return; 
             }
+            
+            // Acción directa: Barra al 100% y apertura de WhatsApp sin confirmaciones
+            document.getElementById('progress-bar').style.width = "100%";
+            const texto = `*RECARGA CARGA DIGITAL*%0AUSD: ${document.getElementById('montoUSD').value}%0ATotal: ${totalGlobalBs.toFixed(2)} Bs%0ACorreo: ${email}`;
+            
+            // Usamos location.href para una redirección más fluida o window.open según prefieras
+            window.location.href = `https://wa.me/${WHATSAPP_RECEPTOR}?text=${texto}`;
         }
     </script>
 </body>
