@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Digital | Recargas Zinli</title>
+    <style>
+        :root {
+            --primary: #00ffa3; 
+            --bg: #0b0b0e;
+            --card: #18181b;
+            --text: #ffffff;
+            --gray: #a1a1aa;
+            --warning: #ffc107;
+        }
+
+        .light-mode {
+            --bg: #f4f4f9;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --gray: #666666;
+        }
+
+        * { box-sizing: border-box; transition: 0.3s; font-family: -apple-system, system-ui, sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        /* BARRA DE PROGRESO */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(0,255,163,0.1);
+            z-index: 1000;
+        }
+        #progress-bar {
+            width: 33%;
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .app-container {
+            width: 90%;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: 900; letter-spacing: -1.5px; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card);
+            border: 1px solid var(--gray);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .step-card {
+            background: var(--card);
+            padding: 10px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            border: 1px solid rgba(128,128,128,0.1);
+        }
+
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(128,128,128,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--gray);
+            color: var(--text);
+            font-size: 2.5rem;
+            width: 100%;
+            text-align: center;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .tasa-badge {
+            background: rgba(0,255,163,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            display: inline-block;
+            margin: 15px 0;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .faq-section { margin-top: 30px; }
+        .faq-item {
+            background: var(--card);
+            margin-bottom: 10px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(128,128,128,0.1);
+        }
+        .faq-question {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        .faq-answer {
+            padding: 0 15px 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            display: none;
+        }
+
+        .alerta-captura {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 15px 0;
+            border: 1px solid var(--warning);
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+    <div class="app-container">
+        <header><div class="logo">CARGA<span>DIGITAL</span></div></header>
+
+        <div class="steps-container">
+            <div class="step-card">1. Calcula</div>
+            <div class="step-card">2. Paga</div>
+            <div class="step-card">3. Reporta</div>
+        </div>
+
+        <div id="step1" class="card">
+            <h2 style="font-size: 1rem; color: var(--gray);">Monto a recargar (USD)</h2>
+            <input type="number" id="montoUSD" placeholder="0" oninput="calcular()">
+            <div class="tasa-badge">Tasa Hoy: <span id="tasaDisplay">Cargando...</span> Bs</div>
+            <button class="btn" onclick="irAPaso2()">Continuar</button>
+        </div>
+
+        <div id="step2" class="card hidden">
+            <h2 style="margin:0; font-size: 1rem;">Total a Pagar</h2>
+            <div id="totalBs" style="font-size: 2.2rem; font-weight: 800; color: var(--primary);">0.00 Bs</div>
+            <p id="comisionTxt" style="color: var(--primary); font-size: 0.8rem; margin: 5px 0 15px;"></p>
+
+            <div style="text-align: left; background: rgba(128,128,128,0.05); padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+                <small style="color:var(--gray)">PAGO MÓVIL MERCANTIL</small><br>
+                <b>0424 703 4254</b><br>
+                <b>V-30.109.280</b>
+            </div>
+
+            <div class="alerta-captura">⚠️ No olvides la captura del pago.</div>
+
+            <input type="email" id="email" placeholder="Correo de Zinli" style="width:100%; margin-bottom:15px; padding:12px; border-radius:10px; border:1px solid var(--gray); background:transparent; color:var(--text);">
+            
+            <button class="btn" onclick="enviarWhatsApp()">Reportar Pago</button>
+            <button onclick="volverAlPaso1()" style="background:none; border:none; color:var(--gray); margin-top:15px; cursor:pointer; font-weight:bold;">← Volver a calcular</button>
+        </div>
+
+        <div class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">¿Cuál es el monto mínimo? <span>+</span></div>
+                <div class="faq-answer" style="display:block;">Desde 1 USD en adelante.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">¿Es seguro? <span>+</span></div>
+                <div class="faq-answer" style="display:block;">¡Totalmente! Contamos con referencias verificables.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = "1qUfkIxbxfzHFHbEDZ54wrLuo9LbUC7oJR-kumF_el-A";
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+        
+        let tasaHoy = 0;
+        let totalGlobalBs = 0;
+
+        async function cargarTasa() {
+            try {
+                // Forzamos que no use caché para que siempre lea el precio nuevo
+                const res = await fetch(SHEET_URL + "&cache=" + new Date().getTime());
+                const data = await res.text();
+                const filas = data.split('\n');
+                // Intentamos leer A2
+                let valor = filas[1].split(',')[0].replace(/["'\r]/g, "").trim();
+                tasaHoy = parseFloat(valor);
+                
+                if(isNaN(tasaHoy)) throw new Error();
+                document.getElementById('tasaDisplay').innerText = tasaHoy.toFixed(2);
+            } catch (e) {
+                document.getElementById('tasaDisplay').innerText = "Cargando...";
+                // Reintento en 2 segundos si falla
+                setTimeout(cargarTasa, 2000);
+            }
+        }
+        cargarTasa();
+
+        function calcular() {
+            let usd = parseFloat(document.getElementById('montoUSD').value) || 0;
+            let comision = 0;
+            let msg = "";
+
+            if (usd > 0 && usd < 15) { comision = 1.5; msg = "+ $1.50 Tarifa"; }
+            else if (usd >= 15 && usd < 23) { comision = usd * 0.10; msg = "+ 10% Comisión"; }
+            else if (usd >= 23 && usd < 50) { comision = usd * 0.09; msg = "+ 9% Comisión"; }
+            else if (usd >= 50) { comision = usd * 0.08; msg = "+ 8% Comisión"; }
+
+            let totalUSD = usd > 0 && usd < 15 ? usd + comision : usd + comision;
+            totalGlobalBs = totalUSD * (tasaHoy || 0);
+            
+            document.getElementById('totalBs').innerText = totalGlobalBs.toLocaleString('es-VE', {minimumFractionDigits:2}) + " Bs";
+            document.getElementById('comisionTxt').innerText = msg;
+        }
+
+        function irAPaso2() {
+            if(parseFloat(document.getElementById('montoUSD').value) > 0) {
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('progress-bar').style.width = "66%";
+            }
+        }
+
+        // FUNCIÓN VOLVER CORREGIDA
+        function volverAlPaso1() {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('progress-bar').style.width = "33%";
+        }
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        
+        function toggleFaq(el) {
+            const ans = el.nextElementSibling;
+            ans.style.display = ans.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function enviarWhatsApp() {
+            const email = document.getElementById('email').value;
+            if(!email.includes('@')) return alert("Ingresa un correo válido");
+            if(confirm("¿Tienes la captura lista?")) {
+                const texto = `*RECARGA CARGA DIGITAL*%0AUSD: ${document.getElementById('montoUSD').value}%0ATotal: ${totalGlobalBs.toFixed(2)} Bs%0ACorreo: ${email}`;
+                window.open(`https://wa.me/584247034254?text=${texto}`, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
