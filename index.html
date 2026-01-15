@@ -237,7 +237,8 @@
     </div>
 
     <script>
-        const SHEET_ID = "1qUfkIxbxfzHFHbEDZ54wrLuo9LbUC7oJR-kumF_el-A";
+        // Actualización a la nueva hoja de cálculo y celda A1
+        const SHEET_ID = "1LjrIYqA8YEdJa6WJ5e9heEBOq6aodi42pYSc6PiPOVM";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
         const WHATSAPP_RECEPTOR = "584247034254";
 
@@ -246,19 +247,19 @@
 
         async function cargarTasa() {
             try {
-                // Se agrega un parámetro de tiempo para evitar caché y errores de lectura
-                const res = await fetch(SHEET_URL + "?t=" + new Date().getTime());
+                const res = await fetch(SHEET_URL + "&cache=" + new Date().getTime());
                 const data = await res.text();
                 const filas = data.split('\n');
-                // Limpieza profunda del dato recibido de la celda A2
-                let valorLimpio = filas[1].split(',')[0].replace(/["'\r]/g, "").trim();
+                
+                // Cambio: Ahora leemos la primera fila (índice 0) para obtener la celda A1
+                let valorLimpio = filas[0].split(',')[0].replace(/["'\r]/g, "").trim();
                 tasaHoy = parseFloat(valorLimpio);
                 
                 if(isNaN(tasaHoy)) throw new Error("No es número");
                 document.getElementById('tasaDisplay').innerText = tasaHoy.toFixed(2);
             } catch (e) { 
                 document.getElementById('tasaDisplay').innerText = "Cargando...";
-                setTimeout(cargarTasa, 2000); // Reintenta si hay error
+                setTimeout(cargarTasa, 2000);
             }
         }
         cargarTasa();
@@ -273,7 +274,7 @@
             else if (usd >= 23 && usd < 50) { comision = usd * 0.09; msg = "+ 9% Comisión"; }
             else if (usd >= 50) { comision = usd * 0.08; msg = "+ 8% Comisión"; }
 
-            let totalUSD = usd > 0 && usd < 15 ? usd + comision : usd + comision;
+            let totalUSD = usd + comision;
             totalGlobalBs = totalUSD * (tasaHoy || 0);
             
             document.getElementById('totalBs').innerText = totalGlobalBs.toLocaleString('es-VE', {minimumFractionDigits:2}) + " Bs";
@@ -289,7 +290,6 @@
             }
         }
 
-        // NUEVA FUNCIÓN VOLVER
         function volverApaso1() {
             document.getElementById('step2').classList.add('hidden');
             document.getElementById('step1').classList.remove('hidden');
