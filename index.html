@@ -12,6 +12,7 @@
             --text: #ffffff;
             --gray: #a1a1aa;
             --warning: #ffc107;
+            --header-bg: #121214;
         }
 
         .light-mode {
@@ -19,6 +20,7 @@
             --card: #ffffff;
             --text: #1a1a1a;
             --gray: #666666;
+            --header-bg: #ffffff;
         }
 
         * { box-sizing: border-box; transition: 0.3s; font-family: -apple-system, system-ui, sans-serif; }
@@ -57,6 +59,7 @@
         .logo { font-size: 28px; font-weight: 900; letter-spacing: -1.5px; text-transform: uppercase; }
         .logo span { color: var(--primary); }
 
+        /* MODO CLARO/OSCURO */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -71,8 +74,10 @@
             align-items: center;
             justify-content: center;
             z-index: 1001;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
+        /* INFOGRAFÍA */
         .steps-container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -87,6 +92,7 @@
             font-size: 0.7rem;
             border: 1px solid rgba(128,128,128,0.1);
         }
+        .step-card i { font-size: 1.2rem; display: block; margin-bottom: 5px; }
 
         .card {
             background: var(--card);
@@ -132,6 +138,7 @@
             cursor: pointer;
         }
 
+        /* FAQ */
         .faq-section { margin-top: 30px; }
         .faq-item {
             background: var(--card);
@@ -163,6 +170,7 @@
             font-size: 0.8rem;
             margin: 15px 0;
             border: 1px solid var(--warning);
+            text-align: left;
         }
 
         .hidden { display: none; }
@@ -171,21 +179,22 @@
 <body>
 
     <div id="progress-container"><div id="progress-bar"></div></div>
+
     <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
 
     <div class="app-container">
         <header><div class="logo">CARGA<span>DIGITAL</span></div></header>
 
         <div class="steps-container">
-            <div class="step-card">1. Calcula</div>
-            <div class="step-card">2. Paga</div>
-            <div class="step-card">3. Reporta</div>
+            <div class="step-card"><i>📱</i>1. Calcula</div>
+            <div class="step-card"><i>💸</i>2. Paga</div>
+            <div class="step-card"><i>✅</i>3. Reporta</div>
         </div>
 
         <div id="step1" class="card">
             <h2 style="font-size: 1rem; color: var(--gray);">Monto a recargar (USD)</h2>
             <input type="number" id="montoUSD" placeholder="0" oninput="calcular()">
-            <div class="tasa-badge">Tasa Hoy: <span id="tasaDisplay">Cargando...</span> Bs</div>
+            <div class="tasa-badge">Tasa Hoy: <span id="tasaDisplay">...</span> Bs</div>
             <button class="btn" onclick="irAPaso2()">Continuar</button>
         </div>
 
@@ -200,22 +209,29 @@
                 <b>V-30.109.280</b>
             </div>
 
-            <div class="alerta-captura">⚠️ No olvides la captura del pago.</div>
+            <div class="alerta-captura">⚠️ <b>No olvides</b> tomar la captura del pago antes de reportar.</div>
 
-            <input type="email" id="email" placeholder="Correo de Zinli" style="width:100%; margin-bottom:15px; padding:12px; border-radius:10px; border:1px solid var(--gray); background:transparent; color:var(--text);">
-            
+            <input type="email" id="email" placeholder="Correo de Zinli" style="font-size: 1rem; text-align: left; border: 1px solid var(--gray); border-radius: 10px; padding: 10px; width: 100%; background: transparent; color: var(--text); margin-bottom: 15px;">
             <button class="btn" onclick="enviarWhatsApp()">Reportar Pago</button>
-            <button onclick="volverAlPaso1()" style="background:none; border:none; color:var(--gray); margin-top:15px; cursor:pointer; font-weight:bold;">← Volver a calcular</button>
+            <button onclick="volverApaso1()" style="background:none; border:none; color:var(--gray); margin-top:15px; cursor:pointer; font-weight: bold;">← Volver</button>
         </div>
 
         <div class="faq-section">
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; text-align: center;">Preguntas Frecuentes</h3>
+            
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">¿Cuál es el monto mínimo? <span>+</span></div>
-                <div class="faq-answer" style="display:block;">Desde 1 USD en adelante.</div>
+                <div class="faq-answer">Puedes recargar desde 1 USD en adelante.</div>
             </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">¿Cuánto tiempo tarda? <span>+</span></div>
+                <div class="faq-answer">El tiempo estimado de recarga es de 5 a 30 minutos una vez verificado el pago.</div>
+            </div>
+
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">¿Es seguro? <span>+</span></div>
-                <div class="faq-answer" style="display:block;">¡Totalmente! Contamos con referencias verificables.</div>
+                <div class="faq-answer">¡Totalmente! Contamos con amplias referencias de clientes satisfechos que avalan nuestra responsabilidad.</div>
             </div>
         </div>
     </div>
@@ -223,26 +239,26 @@
     <script>
         const SHEET_ID = "1qUfkIxbxfzHFHbEDZ54wrLuo9LbUC7oJR-kumF_el-A";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
-        
+        const WHATSAPP_RECEPTOR = "584247034254";
+
         let tasaHoy = 0;
         let totalGlobalBs = 0;
 
         async function cargarTasa() {
             try {
-                // Forzamos que no use caché para que siempre lea el precio nuevo
-                const res = await fetch(SHEET_URL + "&cache=" + new Date().getTime());
+                // Se agrega un parámetro de tiempo para evitar caché y errores de lectura
+                const res = await fetch(SHEET_URL + "?t=" + new Date().getTime());
                 const data = await res.text();
                 const filas = data.split('\n');
-                // Intentamos leer A2
-                let valor = filas[1].split(',')[0].replace(/["'\r]/g, "").trim();
-                tasaHoy = parseFloat(valor);
+                // Limpieza profunda del dato recibido de la celda A2
+                let valorLimpio = filas[1].split(',')[0].replace(/["'\r]/g, "").trim();
+                tasaHoy = parseFloat(valorLimpio);
                 
-                if(isNaN(tasaHoy)) throw new Error();
+                if(isNaN(tasaHoy)) throw new Error("No es número");
                 document.getElementById('tasaDisplay').innerText = tasaHoy.toFixed(2);
-            } catch (e) {
+            } catch (e) { 
                 document.getElementById('tasaDisplay').innerText = "Cargando...";
-                // Reintento en 2 segundos si falla
-                setTimeout(cargarTasa, 2000);
+                setTimeout(cargarTasa, 2000); // Reintenta si hay error
             }
         }
         cargarTasa();
@@ -269,29 +285,34 @@
                 document.getElementById('step1').classList.add('hidden');
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('progress-bar').style.width = "66%";
+                window.scrollTo(0,0);
             }
         }
 
-        // FUNCIÓN VOLVER CORREGIDA
-        function volverAlPaso1() {
+        // NUEVA FUNCIÓN VOLVER
+        function volverApaso1() {
             document.getElementById('step2').classList.add('hidden');
             document.getElementById('step1').classList.remove('hidden');
             document.getElementById('progress-bar').style.width = "33%";
         }
 
-        function toggleTheme() { document.body.classList.toggle('light-mode'); }
-        
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
         function toggleFaq(el) {
-            const ans = el.nextElementSibling;
-            ans.style.display = ans.style.display === 'block' ? 'none' : 'block';
+            const answer = el.nextElementSibling;
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
         }
 
         function enviarWhatsApp() {
             const email = document.getElementById('email').value;
-            if(!email.includes('@')) return alert("Ingresa un correo válido");
-            if(confirm("¿Tienes la captura lista?")) {
+            if(!email.includes('@')) { alert("Ingresa tu correo Zinli"); return; }
+            
+            if(confirm("¿Ya tienes la captura del comprobante lista?")) {
+                document.getElementById('progress-bar').style.width = "100%";
                 const texto = `*RECARGA CARGA DIGITAL*%0AUSD: ${document.getElementById('montoUSD').value}%0ATotal: ${totalGlobalBs.toFixed(2)} Bs%0ACorreo: ${email}`;
-                window.open(`https://wa.me/584247034254?text=${texto}`, '_blank');
+                window.open(`https://wa.me/${WHATSAPP_RECEPTOR}?text=${texto}`, '_blank');
             }
         }
     </script>
